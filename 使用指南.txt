@@ -1,0 +1,9 @@
+你在锁定后，打开SensorDataRecord app，
+1.点击 Start Recording 会开始向以下位置写入文件
+    位置：/sdcard/sensor_data_recording/
+    文件的命名规则：sensorData+时间戳。 比如：sensorData2018-04-11-07-31-55-055
+2.点击Stop Recording 会停止此次记录
+3.当你觉得记录完成，为了得到记录文件，请：
+    使用adb pull remote local 可以拉取文件夹中所有文件
+    比如adb pull /sdcard/sensor_data_recording/ ./afternoonRecord3
+    会将机器上/sdcard/sensor_data_recording/处的记录文件 拉取到 当前文件夹的afternoonRecord3文件夹

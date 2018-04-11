@@ -203,39 +203,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Log.d(TAG, "createDataFile: ", e);
             }
         }
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(sensorDataFile, true);
-            fos.write(getFormatDate("firstLine").getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         return fileName;
     }
 
     public String getFormatDate(String fromWhere) {
         Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-sss");
         String dateString = formatter.format(date);
         if (fromWhere.equals("createFile")) {
             return "sensorData" + dateString;
-        } else if (fromWhere.equals("firstLine")) {
-            return "Start recording at " + dateString + "\r\n";
         }
         return null;
     }
 
     public class MyHandlers{
         public void onClickStart(View view) {
-            startRecoringSensor();
+            startRecordingSensor();
         }
 
         public void onClickStop(View view) {
@@ -243,19 +226,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    public void startRecoringSensor() {
-        Log.d(TAG, "onClickStart: ");
+    public void startRecordingSensor() {
+        Log.d(TAG, "onCreate: startRecording " + System.currentTimeMillis());
         File sensorDataDir = new File("/sdcard/sensor_data_recording");
         if (!sensorDataDir.exists()) {
             boolean firstCreate = sensorDataDir.mkdirs();
-            Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
         }
         Toast.makeText(MainActivity.this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
         mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
     }
 
     public void stopRecordingSensor() {
-        Log.d(TAG, "onClickStop: ");
+        Log.d(TAG, "onCreate: stopRecording " + System.currentTimeMillis());
         Toast.makeText(MainActivity.this, "Stop Recording Now...", Toast.LENGTH_SHORT).show();
         mSensorManager.unregisterListener(MainActivity.this);
     }
