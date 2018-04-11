@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,7 +20,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
+
+import com.example.thinkpad.sensordatarecord.databinding.ActivityMainBinding;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,10 +56,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //todo fuck  ! use data binding!!!!
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        Toast.makeText(this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        Button button = new Button("Start Recording", "Stop Recording");
+        binding.setButtonText(button);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int i = ContextCompat.checkSelfPermission(this, permissions[0]);
             if (i != PackageManager.PERMISSION_GRANTED) {
@@ -160,12 +165,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivityForResult(intent, 123);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: ");
-        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
-    }
 
     @Override
     protected void onPause() {
@@ -232,5 +231,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return "Start recording at " + dateString + "\r\n";
         }
         return null;
+    }
+
+    public class MyHandlers{
+        public void onClickStart(View view) {
+            Log.d(TAG, "onClickStart: ");
+            File sensorDataDir = new File("/sdcard/sensor_data_recording");
+            if (!sensorDataDir.exists()) {
+                boolean firstCreate = sensorDataDir.mkdirs();
+                Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
+            }
+            fileName = createDataFile();
+            Toast.makeText(MainActivity.this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
+            mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
+
+        }
+
+        public void onClickStop(View view) {
+            Log.d(TAG, "onClickStop: ");
+            Toast.makeText(MainActivity.this, "Stop Recording Now...", Toast.LENGTH_SHORT).show();
+            mSensorManager.unregisterListener(MainActivity.this);
+        }
     }
 }
