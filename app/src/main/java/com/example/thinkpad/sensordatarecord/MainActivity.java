@@ -26,7 +26,6 @@ import android.widget.Toast;
 import com.example.thinkpad.sensordatarecord.databinding.ActivityMainBinding;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -216,16 +215,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return null;
     }
 
-    public class MyHandlers{
-        public void onClickStart(View view) {
-            startRecordingSensor();
-        }
-
-        public void onClickStop(View view) {
-            stopRecordingSensor();
-        }
-    }
-
     public void startRecordingSensor() {
         Log.d(TAG, "onCreate: startRecording " + System.currentTimeMillis());
         File sensorDataDir = new File("/sdcard/sensor_data_recording");
@@ -240,5 +229,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d(TAG, "onCreate: stopRecording " + System.currentTimeMillis());
         Toast.makeText(MainActivity.this, "Stop Recording Now...", Toast.LENGTH_SHORT).show();
         mSensorManager.unregisterListener(MainActivity.this);
+    }
+
+    public class MyHandlers {
+        public void onClickStart(View view) {
+            startRecordingSensor();
+        }
+
+        public void onClickStop(View view) {
+            stopRecordingSensor();
+        }
     }
 }
