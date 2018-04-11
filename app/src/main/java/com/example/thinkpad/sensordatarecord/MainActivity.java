@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public String getFormatDate(String fromWhere) {
         Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String dateString = formatter.format(date);
         if (fromWhere.equals("createFile")) {
             return "sensorData" + dateString;
@@ -250,9 +250,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             boolean firstCreate = sensorDataDir.mkdirs();
             Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
         }
-        fileName = createDataFile();
         Toast.makeText(MainActivity.this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
-        mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
+        mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
     }
 
     public void stopRecordingSensor() {
