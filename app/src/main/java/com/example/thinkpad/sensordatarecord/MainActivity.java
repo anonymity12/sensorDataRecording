@@ -35,7 +35,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private static final String TAG = "MainActivity";
-    private static final String TAG1 = "FuckSensor";
+    private static final String TAG1 = "OhMySensor";
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         Button button = new Button("Start Recording", "Stop Recording");
         binding.setButtonText(button);
+        binding.setHandlers(new MyHandlers());
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int i = ContextCompat.checkSelfPermission(this, permissions[0]);
             if (i != PackageManager.PERMISSION_GRANTED) {
@@ -73,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
         }
         fileName = createDataFile();
-
-
     }
 
     private void showDialogTipUserRequestPermission() {
@@ -235,22 +235,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public class MyHandlers{
         public void onClickStart(View view) {
-            Log.d(TAG, "onClickStart: ");
-            File sensorDataDir = new File("/sdcard/sensor_data_recording");
-            if (!sensorDataDir.exists()) {
-                boolean firstCreate = sensorDataDir.mkdirs();
-                Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
-            }
-            fileName = createDataFile();
-            Toast.makeText(MainActivity.this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
-            mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
-
+            startRecoringSensor();
         }
 
         public void onClickStop(View view) {
-            Log.d(TAG, "onClickStop: ");
-            Toast.makeText(MainActivity.this, "Stop Recording Now...", Toast.LENGTH_SHORT).show();
-            mSensorManager.unregisterListener(MainActivity.this);
+            stopRecordingSensor();
         }
+    }
+
+    public void startRecoringSensor() {
+        Log.d(TAG, "onClickStart: ");
+        File sensorDataDir = new File("/sdcard/sensor_data_recording");
+        if (!sensorDataDir.exists()) {
+            boolean firstCreate = sensorDataDir.mkdirs();
+            Log.d(TAG, "onCreate: mkdirs: /sdcard/sensor_data_recording");
+        }
+        fileName = createDataFile();
+        Toast.makeText(MainActivity.this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
+        mSensorManager.registerListener(MainActivity.this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
+    }
+
+    public void stopRecordingSensor() {
+        Log.d(TAG, "onClickStop: ");
+        Toast.makeText(MainActivity.this, "Stop Recording Now...", Toast.LENGTH_SHORT).show();
+        mSensorManager.unregisterListener(MainActivity.this);
     }
 }
