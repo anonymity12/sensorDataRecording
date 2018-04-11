@@ -31,6 +31,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private static final String TAG = "MainActivity";
+    private static final String TAG1 = "FuckSensor";
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //todo fuck  ! use data binding!!!!
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Toast.makeText(this, "Recording Sensor Data Now...", Toast.LENGTH_SHORT).show();
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void showDialogTipUserGoToAppSetting() {
         dialog = new AlertDialog.Builder(this)
-                .setTitle("Storage not Accessable")
+                .setTitle("Storage not Accessible")
                 .setMessage("请在-应用设置-权限-中，允许SensorDataRecord使用存储权限来保存用户数据")
                 .setPositiveButton("这就去开权限", new DialogInterface.OnClickListener() {
                     @Override
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
-        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_GAME);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);//SENSOR_DELAY_GAME:0.02s//SENSOR_DELAY_NORMAL:200000microsecond = 0.2s
     }
 
     @Override
@@ -177,7 +178,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float x = event.values[0];
         float y = event.values[1];
         float z = event.values[2];
-        String dataString = x + ":" + y + ":" + z;
+        String dataString = x + "," + y + "," + z + "\r\n";
+        Log.d(TAG1, "onSensorChanged: x = " + x);
+        Log.d(TAG1, "onSensorChanged: y = " + y);
+        Log.d(TAG1, "onSensorChanged: z = " + z);
+
         appendMethodB(fileName, dataString);
 
     }
@@ -187,8 +192,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    private String createDataFile()  {
-        String fileName = "/sdcard/sensor_data_recording/" + System.currentTimeMillis() + ".csv";
+    private String createDataFile() {
+        String fileName = "/sdcard/sensor_data_recording/" + getFormatDate("createFile") + ".csv";
         File sensorDataFile = new File(fileName);
         if (!sensorDataFile.exists()) {
             Log.d(TAG, "onCreate: dataFile not be created???!!!!");
@@ -196,13 +201,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 sensorDataFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(TAG, "createDataFile: ",e);
+                Log.d(TAG, "createDataFile: ", e);
             }
         }
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(sensorDataFile, true);
-            fos.write(getFormatDate().getBytes());
+            fos.write(getFormatDate("firstLine").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -217,11 +222,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return fileName;
     }
 
-    public String getFormatDate() {
+    public String getFormatDate(String fromWhere) {
         Date date = new Date();
-        long times = date.getTime();//时间戳
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        return "start recording at " + dateString;
+        if (fromWhere.equals("createFile")) {
+            return "sensorData" + dateString;
+        } else if (fromWhere.equals("firstLine")) {
+            return "Start recording at " + dateString + "\r\n";
+        }
+        return null;
     }
 }
