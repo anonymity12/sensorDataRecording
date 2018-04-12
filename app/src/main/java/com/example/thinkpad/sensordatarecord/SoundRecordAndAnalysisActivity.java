@@ -110,12 +110,13 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             while (started) {
 
                 if (isCancelled() || (CANCELLED_FLAG == true)) {
-
+                    //stop this background task
                     started = false;
                     publishProgress(cancelledResult);
                     Log.d("doInBackground", "Cancelling the RecordTask");
                     break;
                 } else {
+                    //goon process the audioRecord object
                     bufferReadResult = audioRecord.read(buffer, 0, blockSize);
 
                     for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
