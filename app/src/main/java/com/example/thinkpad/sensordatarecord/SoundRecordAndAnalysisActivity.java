@@ -118,14 +118,19 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                 } else {
                     //goon process the audioRecord object
                     bufferReadResult = audioRecord.read(buffer, 0, blockSize);//tt: 256
-                    Log.e(TAG, "doInBackground: buffer = " + buffer);
-
+                    //tt: will show u in file end [2] this output
+                    for (int c = 45; c < 200; c ++) {
+                        Log.e(TAG, "doInBackground: buffer = " + buffer[c]);
+                    }
                     for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
                         toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit ；32768 = 1后15个0
-                        Log.d(TAG, "doInBackground: toTransform[i] : " + toTransform[i]);
+                        Log.d(TAG, "before transformation>>> toTransform[i] : " + toTransform[i]);//tt: give u the whole three data sample output at file end[3]
                     }
 
                     transformer.ft(toTransform);
+                    for (int c = 45; c < 200; c ++) {
+                        Log.d(TAG, "after transformation>>> toTransform[i] : " + toTransform[c]);//tt: give u the sample output at file end[1]
+                    }
 
                     publishProgress(toTransform);
 
@@ -466,4 +471,196 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
     }
 }
 
+
+/*1. the sample toTransform[] output:
+* toTransform[i] : 0.001800537109375
+toTransform[i] : 0.0047607421875
+toTransform[i] : 0.002899169921875
+toTransform[i] : 0.003662109375
+toTransform[i] : 0.006622314453125
+toTransform[i] : 0.0
+toTransform[i] : -0.00445556640625
+toTransform[i] : -0.00335693359375
+toTransform[i] : -0.00408935546875
+toTransform[i] : -0.00372314453125
+toTransform[i] : -0.00482177734375
+toTransform[i] : -0.00778198242187
+toTransform[i] : -0.01260375976562
+toTransform[i] : -0.01446533203125
+toTransform[i] : -0.0096435546875
+toTransform[i] : -0.00741577148437
+toTransform[i] : -0.00299072265625
+toTransform[i] : -0.00149536132812
+toTransform[i] : 0.00439453125
+toTransform[i] : 0.0040283203125
+toTransform[i] : 0.001434326171875
+toTransform[i] : 0.005126953125
+toTransform[i] : 0.007720947265625
+toTransform[i] : 0.006988525390625
+toTransform[i] : 0.006256103515625
+toTransform[i] : 0.005523681640625
+toTransform[i] : 0.005889892578125
+toTransform[i] : 0.007720947265625
+toTransform[i] : 0.006988525390625
+toTransform[i] : 0.006988525390625
+toTransform[i] : 0.00811767578125
+toTransform[i] : 0.006988525390625
+toTransform[i] : 0.0040283203125
+toTransform[i] : 0.001068115234375
+toTransform[i] : -0.00299072265625
+toTransform[i] : -0.00186157226562 equals 60.99999 in buffer[i]
+toTransform[i] : -7.62939453125E-4 equals -250000 in buffer[]
+toTransform[i] : -0.00521850585937
+toTransform[i] : -0.0096435546875
+toTransform[i] : -0.01077270507812
+toTransform[i] : -0.01187133789062
+toTransform[i] : -0.008544921875
+toTransform[i] : -0.00558471679687
+toTransform[i] : -3.96728515625E-4
+toTransform[i] : -0.00149536132812
+toTransform[i] : -3.96728515625E-4
+toTransform[i] : -0.00372314453125
+toTransform[i] : -0.00521850585937
+toTransform[i] : -0.00668334960937
+toTransform[i] : -0.00704956054687
+toTransform[i] : -0.00299072265625
+toTransform[i] : -0.00335693359375
+toTransform[i] : -0.0074462890625
+toTransform[i] : -0.0074462890625
+toTransform[i] : -0.0074462890625
+toTransform[i] : -0.008544921875
+toTransform[i] : -0.007080078125
+toTransform[i] : -0.01077270507812
+toTransform[i] : -0.01004028320312
+toTransform[i] : -0.00631713867187
+toTransform[i] : -0.00149536132812
+toTransform[i] : -7.62939453125E-4
+toTransform[i] : -0.00372314453125
+toTransform[i] : -3.96728515625E-4
+toTransform[i] : 0.009246826171875
+* */
+
+/*[2] the log output buffer array elements
+*
+* doInBackground: buffer = 197
+doInBackground: buffer = 154
+doInBackground: buffer = 129
+doInBackground: buffer = 0
+doInBackground: buffer = -137
+doInBackground: buffer = -261
+doInBackground: buffer = -292
+doInBackground: buffer = -230
+doInBackground: buffer = -174
+doInBackground: buffer = -81
+doInBackground: buffer = 5
+doInBackground: buffer = 73
+doInBackground: buffer = 104
+doInBackground: buffer = 178
+doInBackground: buffer = 178
+doInBackground: buffer = 85
+doInBackground: buffer = 85
+doInBackground: buffer = 92
+doInBackground: buffer = 42
+doInBackground: buffer = 48
+doInBackground: buffer = 17
+doInBackground: buffer = 30
+doInBackground: buffer = 0
+doInBackground: buffer = 11
+doInBackground: buffer = 23
+doInBackground: buffer = 11
+doInBackground: buffer = 42
+doInBackground: buffer = 104
+doInBackground: buffer = 104
+doInBackground: buffer = 48
+* */
+
+
+/*[3] output of buffer[], toTransform[] array before transform and after transform
+  buffer = 424
+ buffer = 448
+ buffer = 99
+ buffer = -325
+ buffer = -587
+ buffer = 149
+ buffer = 174
+ buffer = 149
+ buffer = -88
+ buffer = 187
+ buffer = -63
+ buffer = -948
+ buffer = 124
+ buffer = 261
+ buffer = 137
+ buffer = -100
+ buffer = -362
+ buffer = 62
+ buffer = -50
+ buffer = 548
+ buffer = 523
+ buffer = 511
+ buffer = 411
+ buffer = -187
+ buffer = 112
+ buffer = 99
+ buffer = 423
+ buffer = 286
+
+ before transformation>>> toTransform[i] : 0.007232666015625
+before transformation>>> toTransform[i] : 0.008392333984375
+before transformation>>> toTransform[i] : -0.002685546875
+before transformation>>> toTransform[i] : -0.0172119140625
+before transformation>>> toTransform[i] : -0.00192260742187
+before transformation>>> toTransform[i] : -0.00726318359375
+before transformation>>> toTransform[i] : 0.02099609375
+before transformation>>> toTransform[i] : 0.018707275390625
+before transformation>>> toTransform[i] : 0.014129638671875
+before transformation>>> toTransform[i] : -0.0084228515625
+before transformation>>> toTransform[i] : -0.0267333984375
+before transformation>>> toTransform[i] : -0.01300048828125
+before transformation>>> toTransform[i] : 0.001129150390625
+before transformation>>> toTransform[i] : 0.0125732421875
+before transformation>>> toTransform[i] : 0.005340576171875
+before transformation>>> toTransform[i] : -0.01376342773437
+before transformation>>> toTransform[i] : -0.00955200195312
+before transformation>>> toTransform[i] : -0.00537109375
+before transformation>>> toTransform[i] : 0.005706787109375
+before transformation>>> toTransform[i] : 0.009521484375
+before transformation>>> toTransform[i] : 0.005340576171875
+before transformation>>> toTransform[i] : -0.012939453125
+before transformation>>> toTransform[i] : 0.009490966796875
+before transformation>>> toTransform[i] : 0.007598876953125
+before transformation>>> toTransform[i] : 0.009490966796875
+before transformation>>> toTransform[i] : 0.007598876953125
+before transformation>>> toTransform[i] : -0.012542724609375
+after transformation>>> toTransform[i] : 0.016386890561793946
+after transformation>>> toTransform[i] : 0.1607625504974015
+after transformation>>> toTransform[i] : 0.08626160437487893
+after transformation>>> toTransform[i] : 0.14437323117620687
+after transformation>>> toTransform[i] : -0.031739745315146256
+after transformation>>> toTransform[i] : 0.15486572525587958
+after transformation>>> toTransform[i] : -0.07813975632883836
+after transformation>>> toTransform[i] : 0.14394773134503866
+after transformation>>> toTransform[i] : -0.08071344454804791
+after transformation>>> toTransform[i] : 0.04882324437129382
+after transformation>>> toTransform[i] : 0.0503348380063424
+after transformation>>> toTransform[i] : 0.04506187935715268
+after transformation>>> toTransform[i] : -0.07841651273061731
+after transformation>>> toTransform[i] : 0.13125279444369248
+after transformation>>> toTransform[i] : -0.017625561761860767
+after transformation>>> toTransform[i] : -0.003563848409531379
+after transformation>>> toTransform[i] : -0.025323431958499686
+after transformation>>> toTransform[i] : 0.13167737431919949
+after transformation>>> toTransform[i] : -0.08378717769444652
+after transformation>>> toTransform[i] : 0.08303657076984344
+after transformation>>> toTransform[i] : -0.08545103376156024
+after transformation>>> toTransform[i] : 0.07368822339365252
+after transformation>>> toTransform[i] : -0.0052192942199127314
+after transformation>>> toTransform[i] : 0.1126984748667631
+after transformation>>> toTransform[i] : -0.21438374714644456
+after transformation>>> toTransform[i] : 0.3774270334452147
+after transformation>>> toTransform[i] : 0.465166019567587
+after transformation>>> toTransform[i] : -0.07745855043443067
+after transformation>>> toTransform[i] : 0.03845399087974697
+*
+* */
 
