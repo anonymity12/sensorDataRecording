@@ -973,72 +973,72 @@ class RealDoubleFFT_Mixed
           iw=n-1+n+offset;
           for(k1=1; k1<=nf;++k1)
           {
-	      kh=nf-k1;
-	      ip=(int)wtable[kh+2+2*n+offset];
-	      l1=l2 / ip;
-	      ido=n / l2;
-	      idl1=ido*l1;
-	      iw-=(ip-1)*ido;
-	      na=1-na;
-	      if(ip==4)
-	      {
-	          if(na==0)
-                  {
-                      radf4(ido, l1, c, ch, wtable, iw);
-                  }
-	          else
-                  {
-                      radf4(ido, l1, ch, c, wtable, iw); 
-                  }
-	      }
-	      else if(ip==2)
-	      {
-	          if(na==0)
-                  {
-                      radf2(ido, l1, c, ch, wtable, iw);
-                  }
-	          else
-                  {
-                      radf2(ido, l1, ch, c, wtable, iw);
-                  }
-	      }
-	      else if(ip==3)
-	      {
-	          if(na==0)
-                  {
-                        radf3(ido, l1, c, ch, wtable, iw);
-                  }
-	          else
-                  {
-                        radf3(ido, l1, ch, c, wtable, iw);
-                  }
-	      }
-	      else if(ip==5)
-	      {
-	          if(na==0)
-                  {
-                       radf5(ido, l1, c, ch, wtable, iw);
-                  }
-	          else
-                  {
-                       radf5(ido, l1, ch, c, wtable, iw);
-                  }
-	      }
-	      else
-	      {
-                  if(ido==1) na=1-na;
-	          if(na==0)
-	          {
-                      radfg(ido, ip, l1, idl1, c, c, c, ch, ch, wtable, iw);
-		      na=1;
-	          }
-	          else
-	          {
-                      radfg(ido, ip, l1, idl1, ch, ch, ch, c, c, wtable, iw);
-		      na=0;
-	          }
-	      }
-	      l2=l1;
+			  kh=nf-k1;
+			  ip=(int)wtable[kh+2+2*n+offset];
+			  l1=l2 / ip;
+			  ido=n / l2;
+			  idl1=ido*l1;
+			  iw-=(ip-1)*ido;
+			  na=1-na;
+			  if(ip==4)
+			  {
+				  if(na==0)
+					  {
+						  radf4(ido, l1, c, ch, wtable, iw);
+					  }
+				  else
+					  {
+						  radf4(ido, l1, ch, c, wtable, iw);
+					  }
+			  }
+			  else if(ip==2)
+			  {
+				  if(na==0)
+					  {
+						  radf2(ido, l1, c, ch, wtable, iw);
+					  }
+				  else
+					  {
+						  radf2(ido, l1, ch, c, wtable, iw);
+					  }
+			  }
+			  else if(ip==3)
+			  {
+				  if(na==0)
+					  {
+							radf3(ido, l1, c, ch, wtable, iw);
+					  }
+				  else
+					  {
+							radf3(ido, l1, ch, c, wtable, iw);
+					  }
+			  }
+			  else if(ip==5)
+			  {
+				  if(na==0)
+					  {
+						   radf5(ido, l1, c, ch, wtable, iw);
+					  }
+				  else
+					  {
+						   radf5(ido, l1, ch, c, wtable, iw);
+					  }
+			  }
+			  else
+			  {
+					  if(ido==1) na=1-na;
+				  if(na==0)
+				  {
+						  radfg(ido, ip, l1, idl1, c, c, c, ch, ch, wtable, iw);
+				  na=1;
+				  }
+				  else
+				  {
+						  radfg(ido, ip, l1, idl1, ch, ch, ch, c, c, wtable, iw);
+				  na=0;
+				  }
+			  }
+			  l2=l1;
           }
           if(na==1) return;
           for(i=0; i<n; i++) c[i]=ch[i];

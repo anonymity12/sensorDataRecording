@@ -120,7 +120,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                     bufferReadResult = audioRecord.read(buffer, 0, blockSize);
 
                     for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
-                        toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
+                        toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit ；32768 = 1后15个0
                     }
 
                     transformer.ft(toTransform);
@@ -130,6 +130,9 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                 }
 
             }
+            //tt: this return called when use click stop, the detail is :
+            //tt: when click happen, variable:started = false, then the above while loop dead,
+            //tt: so here return
             return true;
         }
         @Override
@@ -138,6 +141,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             double mMaxFFTSample = 150.0;
 
             Log.d("Test:", Integer.toString(progress[0].length));
+            //tt: pass the cancelResult
             if(progress[0].length == 1 ){
 
                 Log.d("FFTSpectrumAnalyzer", "onProgressUpdate: Blackening the screen");
@@ -145,8 +149,9 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                 imageViewDisplaySectrum.invalidate();
 
             }
-
+            //tt: pass the useful sound result
             else {
+                //tt: when you're using newest good devices.
                 if (width > 512) {
                     for (int i = 0; i < progress[0].length; i++) {
                         int x = 2 * i;
@@ -154,16 +159,17 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                         int upy = 150;
                         if(downy < mMaxFFTSample)
                         {
-                            mMaxFFTSample = downy;
+                            mMaxFFTSample = downy;//tt: wtf? you are choosing the min, not max; tt: well you are right, downy min means this data is large
                             //mMag = mMaxFFTSample;
                             mPeakPos = i;
                         }
 
-                        canvasDisplaySpectrum.drawLine(x, downy, x, upy, paintSpectrumDisplay);
+                        canvasDisplaySpectrum.drawLine(x, downy, x, upy, paintSpectrumDisplay);//tt: guess you are drawing on the bitmapDisplaySpectrum which is inside of canvasDisplaySpectrum
                     }
 
                     imageViewDisplaySectrum.invalidate();
                 } else {
+                //tt: when you use old small screen devices, guess my App on Samsung never enter this logic
                     for (int i = 0; i < progress[0].length; i++) {
                         int x = i;
                         int downy = (int) (150 - (progress[0][i] * 10));
@@ -224,6 +230,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
 
     public void onClick(View v) {
         if (started == true) {
+            //tt: to stop the process
             //started = false;
             CANCELLED_FLAG = true;
             //recordTask.cancel(true);
@@ -245,6 +252,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         }
 
         else {
+            //tt: to start the process
             started = true;
             CANCELLED_FLAG = false;
             startStopButton.setText("Stop");
