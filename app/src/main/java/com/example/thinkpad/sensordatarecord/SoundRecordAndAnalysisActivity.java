@@ -46,6 +46,12 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
     int mPeakPos;
     double mHighestFreq;
     RecordAudio recordTask;
+
+    MyImageView displaySectrum;
+    Button startButton;
+    Button stopButton;
+
+
     ImageView imageViewDisplaySectrum;
     MyImageView imageViewScale;
     Bitmap bitmapDisplaySpectrum;
@@ -64,30 +70,24 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
     private final static int ID_IMAGEVIEWSCALE = 2;
 
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Display display = getWindowManager().getDefaultDisplay();
-        //Point size = new Point();
-        //display.get(size);
-        width = display.getWidth();
-        height = display.getHeight();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //blockSize = 256;
+        transformer = new RealDoubleFFT(blockSize);
 
-
-
+        setContentView(R.layout.activity_sound_record_and_analysis);
+        displaySectrum = findViewById(R.id.imageView);
+        startButton = findViewById(R.id.button0);
+        stopButton = findViewById(R.id.button1);
+        startButton.setOnClickListener(this);
+        stopButton.setOnClickListener(this);
     }
 
-    @Override
-    public void onWindowFocusChanged (boolean hasFocus) {
-        //left_Of_BimapScale = main.getC.getLeft();
-        MyImageView  scale = (MyImageView)main.findViewById(R.id.image_view_scale/*ID_IMAGEVIEWSCALE*/);
-        ImageView bitmap = (ImageView)main.findViewById(R.id.spectrum_display);
-        left_Of_BimapScale = scale.getLeft();
-        left_Of_DisplaySpectrum = bitmap.getLeft();
-    }
     private class RecordAudio extends AsyncTask<Void, double[], Boolean> {
 
         @Override
@@ -110,12 +110,13 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             while (started) {
 
                 if (isCancelled() || (CANCELLED_FLAG == true)) {
-
+                    //enter stop status
                     started = false;
                     publishProgress(cancelledResult);
                     Log.d("doInBackground", "Cancelling the RecordTask");
                     break;
                 } else {
+                    //still inside of recording status
                     bufferReadResult = audioRecord.read(buffer, 0, blockSize);
 
                     for (int i = 0; i < blockSize && i < bufferReadResult; i++) {
@@ -202,88 +203,52 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         }
     }
 
-    protected void onCancelled(Boolean result){
 
-        try{
-            audioRecord.stop();
-        }
-        catch(IllegalStateException e){
-            Log.e("Stop failed", e.toString());
-
-        }
-        //recordTask.cancel(true);
-
-        Log.d("FFTSpectrumAnalyzer","onCancelled: New Screen");
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-
-    }
 
     public void onClick(View v) {
-        if (started == true) {
-            //started = false;
-            CANCELLED_FLAG = true;
-            //recordTask.cancel(true);
-            try{
-                audioRecord.stop();
-            }
-            catch(IllegalStateException e){
-                Log.e("Stop failed", e.toString());
-
-            }
-            startStopButton.setText("Start");
-            //show the frequency that has the highest amplitude...
-            mHighestFreq = (((1.0 * frequency) / (1.0 * blockSize)) * mPeakPos)/2;
-            String str = "Frequency for Highest amplitude: " + mHighestFreq;
-            Toast.makeText(getApplicationContext(), str , Toast.LENGTH_LONG).show();
-
-            canvasDisplaySpectrum.drawColor(Color.BLACK);
-
-        }
-
-        else {
-            started = true;
-            CANCELLED_FLAG = false;
-            startStopButton.setText("Stop");
-            recordTask = new RecordAudio();
-            recordTask.execute();
+        switch (v.getId()) {
+            case R.id.button0:
+                //start recording
+                CANCELLED_FLAG = false;
+                recordTask = new RecordAudio();
+                recordTask.execute();
+                break;
+            case R.id.button1:
+                //stop recording
+                CANCELLED_FLAG = true;
+                try {
+                    audioRecord.stop();
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "onClick: Stop failed", e);
+                }
+                //show highest frequency
+                mHighestFreq = (((1.0 * frequency) / (1.0 * blockSize)) * mPeakPos)/2;
+                String str = "Frequency for Highest amplitude: " + mHighestFreq;
+                Toast.makeText(getApplicationContext(), str , Toast.LENGTH_LONG).show();
         }
 
     }
-    static SoundRecordAndAnalysisActivity getMainActivity(){
 
-        return mainActivity;
-    }
 
-    public void onStop(){
-        super.onStop();
-        	/*started = false;
-            startStopButton.setText("Start");*/
-        //if(recordTask != null){
-        recordTask.cancel(true);
-        //}
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
 
+    //tt: clear it
+    @Override
     public void onStart(){
 
         super.onStart();
         main = new LinearLayout(this);
         main.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.MATCH_PARENT));
         main.setOrientation(LinearLayout.VERTICAL);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+/*        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        transformer = new RealDoubleFFT(blockSize);
+        transformer = new RealDoubleFFT(blockSize);*/
 
         imageViewDisplaySectrum = new ImageView(this);
+
+        //tt: die, create biggest
         if(width > 512){
             bitmapDisplaySpectrum = Bitmap.createBitmap((int)512,(int)300,Bitmap.Config.ARGB_8888);
         }
@@ -297,6 +262,8 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         paintSpectrumDisplay = new Paint();
         paintSpectrumDisplay.setColor(Color.GREEN);
         imageViewDisplaySectrum.setImageBitmap(bitmapDisplaySpectrum);
+
+        //tt: died code
         if(width >512){
             //imageViewDisplaySectrum.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
             LinearLayout.LayoutParams layoutParams_imageViewDisplaySpectrum=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -308,7 +275,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
 
         }
 
-        else if ((width >320) && (width<512)){
+ /*       else if ((width >320) && (width<512)){
             LinearLayout.LayoutParams layoutParams_imageViewDisplaySpectrum=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             ((MarginLayoutParams) layoutParams_imageViewDisplaySpectrum).setMargins(60, 250, 0, 0);
             //layoutParams_imageViewDisplaySpectrum.gravity = Gravity.CENTER_HORIZONTAL;
@@ -321,13 +288,13 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         }
 
         else if (width < 320){
-            	/*LinearLayout.LayoutParams layoutParams_imageViewDisplaySpectrum=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            	*//*LinearLayout.LayoutParams layoutParams_imageViewDisplaySpectrum=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 ((MarginLayoutParams) layoutParams_imageViewDisplaySpectrum).setMargins(30, 100, 0, 100);
-                imageViewDisplaySectrum.setLayoutParams(layoutParams_imageViewDisplaySpectrum);*/
+                imageViewDisplaySectrum.setLayoutParams(layoutParams_imageViewDisplaySpectrum);*//*
             imageViewDisplaySectrum.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
             layoutParams_imageViewScale=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             //layoutParams_imageViewScale.gravity = Gravity.CENTER;
-        }
+        }*/
         imageViewDisplaySectrum.setId(R.id.spectrum_display);
         main.addView(imageViewDisplaySectrum);
 
@@ -337,7 +304,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
 
         //imageViewScale.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
         main.addView(imageViewScale);
-
+/*
         startStopButton = new Button(this);
         startStopButton.setText("Start");
         startStopButton.setOnClickListener(this);
@@ -347,7 +314,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
 
         setContentView(main);
 
-        mainActivity = this;
+        mainActivity = this;*/
 
     }
     @Override
@@ -362,17 +329,8 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
         startActivity(intent);
     }
 
-    @Override
-    protected void onDestroy() {
-        // TODO Auto-generated method stub
-        super.onDestroy();
-        recordTask.cancel(true);
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-    //Custom Imageview Class
+
+    //Custom Imageview Class, guess used to display coordinate
     public class MyImageView extends android.support.v7.widget.AppCompatImageView {
         Paint paintScaleDisplay;
         Bitmap bitmapScale;
@@ -381,14 +339,14 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             super(context);
             // TODO Auto-generated constructor stub
             if(width >512){
-                bitmapScale = Bitmap.createBitmap((int)512,(int)50,Bitmap.Config.ARGB_8888);
+                bitmapScale = Bitmap.createBitmap((int)900,(int)200,Bitmap.Config.ARGB_8888);
             }
             else{
                 bitmapScale =  Bitmap.createBitmap((int)256,(int)50,Bitmap.Config.ARGB_8888);
             }
 
             paintScaleDisplay = new Paint();
-            paintScaleDisplay.setColor(Color.WHITE);
+            paintScaleDisplay.setColor(Color.RED);
             paintScaleDisplay.setStyle(Paint.Style.FILL);
 
             //canvasScale = new Canvas(bitmapScale);
@@ -429,6 +387,7 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
                     //canvasScale.drawLine(i, 40, i, 25, paintScaleDisplay);
                     canvas.drawLine(i, 40, i, 25, paintScaleDisplay);
                     String text = Integer.toString(j) + " KHz";
+                    Log.d(TAG, "onDraw: j KHz is : " + j);
                     //canvasScale.drawText(text, i, 45, paintScaleDisplay);
                     canvas.drawText(text, i, 45, paintScaleDisplay);
                 }
@@ -453,6 +412,8 @@ public class SoundRecordAndAnalysisActivity extends Activity implements OnClickL
             }
         }
     }
+
+    private static final String TAG = "ohMyKHz";
 }
 
 
